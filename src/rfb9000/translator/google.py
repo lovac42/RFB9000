@@ -4,16 +4,15 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 
-import os, re
-import time
-from aqt import mw
+import os, re, time
+from aqt import *
 from aqt.utils import showInfo
 from anki.lang import _
 from requests.exceptions import ConnectionError
 
 from ..const import ADDONNAME
 from ..clean import Cleaner
-from ..error import NoNoteError
+from ..error import NoNoteError, BlacklistedError
 
 from ..lib.googletrans import Translator
 
@@ -133,7 +132,6 @@ class GoogleTranslator:
     LANGUAGES = [v for k,v in LANG_MAPS.items()]
     translator=Translator()
     htmlCleaner=Cleaner()
-    startTime=0
     totalChars=0
     stat={}
     tag=""
@@ -169,71 +167,95 @@ class GoogleTranslator:
             "overwritten":0,
             "netError":0,
             "nofield":0,
+            "interrupted":False,
         }
         mw.checkpoint(ADDONNAME)
         self.processNotes(nids)
 
-
     def processNotes(self, nids):
-        self.startTime=0
+        end=len(nids)
+        self.progress=QProgressDialog("Translating...", "Abort", 0, end, self.parent)
+        self.progress.setWindowTitle("Translating...")
+        self.progress.setWindowModality(Qt.WindowModal)
+        self.progress.canceled.connect(self.cancel)
+        self.progress.forceShow()
+
+        cnt=0
         for nid in nids:
+            self.progress.setValue(cnt)
+            cnt+=1
+
             note=mw.col.getNote(nid)
             if self.read_field not in note or \
                self.write_field not in note or \
                not note[self.read_field]:
                 self.stat["nofield"]+=1
                 continue
-            f=self.processField(note)
+
+            try:
+                f=self.processField(note)
+            except ConnectionError:
+                try:
+                    self.sleep(30)
+                    f=self.processField(note)
+                except ConnectionError:
+                    self.stat["netError"]+=1
+            except ValueError:
+                # IP banned!
+                try:
+                    self.sleep(900)
+                    f=self.processField(note)
+                except ValueError:
+                    self.progress.setValue(end)
+                    raise BlacklistedError
+
+            if self.progress.wasCanceled():
+                break
+            if not f:
+                continue
+            self.progress.setLabelText(f)
+            self.progress.repaint()
             self.totalChars+=len(f)
 
             # Aggressive pauses are used to prevent IP bans.
-            if self.totalChars>500:
-                mw.progress.update("Pausing for 100 secs, you hit the limit.")
-                time.sleep(100)
+            # Exact figures depends on server load and may change at any time.
+            if self.totalChars>600:
+                self.sleep(120)
                 self.totalChars=0
-            elif self.totalChars%25==0:
-                mw.progress.update("Pausing for 30 secs...")
-                time.sleep(30)
-            elif len(f.split())>2:
-                time.sleep(2)
+            elif self.totalChars%50==0:
+                self.sleep(20)
+            elif len(f.split())>2 or len(f)>10:
+                self.sleep(2)
+
+        self.progress.setValue(end)
 
 
-    def processField(self, note, retry=True):
-        try:
-            if note[self.write_field].strip():
-                if not self.overwrite:
-                    self.stat["skipped"]+=1
-                    return "k"
-                self.stat["overwritten"]+=1
+    def processField(self, note):
+        if self.progress.wasCanceled():
+            return
 
-            o=note[self.read_field]
-            o=self.cleanWord(o)
-            if not o:
-                return "n"
+        if note[self.write_field].strip():
+            if not self.overwrite:
+                self.stat["skipped"]+=1
+                return
+            self.stat["overwritten"]+=1
 
-            t = self.translator.translate(
-                str(o), src=self.src, dest=self.dest
-            )
-            note[self.write_field]=t.text
-            # note[self.write_field]=t.pronunciation #TODO: add option
+        o=note[self.read_field]
+        o=self.cleanWord(o)
+        if not o:
+            return
 
-            if self.tag:
-                note.addTag(self.tag)
-            note.flush()
-            self.stat["written"]+=1
-            self.updatePTimer(o)
-            return o
-        except ConnectionError:
-            self.stat["netError"]+=1
-            return "e"
-        except ValueError:
-            print("You hit the google char limit!")
-            if not retry:
-                raise ValueError
-            mw.progress.update("Pausing for 300 secs, you may have been banned.")
-            time.sleep(300)
-            return self.processField(note, retry=False)
+        t = self.translator.translate(
+            str(o), src=self.src, dest=self.dest
+        )
+        note[self.write_field]=t.text
+        # note[self.write_field]=t.pronunciation #TODO: add option
 
+        if self.tag:
+            note.addTag(self.tag)
+        note.flush()
+        self.stat["written"]+=1
+        return o
 
     def cleanWord(self, txt):
         if self.no_html:
@@ -242,9 +264,16 @@ class GoogleTranslator:
             txt=self.htmlCleaner.toString()
         return txt.strip() #leading & trailing space
 
+    def sleep(self, n):
+        loop=QEventLoop()
+        for i in range(n):
+            if self.progress.wasCanceled():
+                return
+            if n>3:
+                self.progress.setLabelText("Pause for %d secs."%(n-i))
+                self.progress.repaint()
+            QTimer.singleShot(999, loop.quit)
+            loop.exec_()
 
-    def updatePTimer(self, labelText):
-        now = time.time()
-        if now-self.startTime >= 0.5:
-            self.startTime=now
-            mw.progress.update(_("%s"%labelText))
+    def cancel(self):
+        self.stat["interrupted"]=True

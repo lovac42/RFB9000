@@ -21,7 +21,7 @@ else:
     from PyQt4 import QtCore, QtGui as QtWidgets
 
 
-class RFB9000():
+class RFB9000:
     translator=GoogleTranslator()
 
     def __init__(self, browser, conf):
@@ -144,10 +144,10 @@ class RFB9000():
         gridLayout.addWidget(self.btn_save,r,1,1,1)
 
         self.checkWritable()
-        diag=QDialog(self.browser)
-        diag.setLayout(layout)
-        diag.setWindowTitle(TITLE)
-        diag.exec_()
+        self.dialog=QDialog(self.browser)
+        self.dialog.setLayout(layout)
+        self.dialog.setWindowTitle(TITLE)
+        self.dialog.exec_()
 
 
     def onChangedCB(self):
@@ -179,24 +179,27 @@ class RFB9000():
 
     def onWrite(self):
         if self.btn_save.isEnabled():
-            mw.progress.start(immediate=True)
-            mw.progress.update(_("Translating..."))
-            try:
-                tag=self.conf.get("autotag","RFB9K")
-                src=self.readLang.currentText()
-                dest=self.writeLang.currentText()
-                rField=self.readField.currentText()
-                wField=self.writeField.currentText()
-                ow=self.cb_overWrite.checkState()
-                htm=self.cb_rm_html.checkState()
+            tag=self.conf.get("autotag","RFB9K")
+            src=self.readLang.currentText()
+            dest=self.writeLang.currentText()
+            rField=self.readField.currentText()
+            wField=self.writeField.currentText()
+            ow=self.cb_overWrite.checkState()
+            htm=self.cb_rm_html.checkState()
 
-                self.translator.setLanguages(src,dest)
-                self.translator.setFields(rField,wField)
-                self.translator.setProperties(tag,ow,htm)
-                self.translator.process(self.notes)
-            finally:
-                mw.progress.finish()
+            if len(self.notes)>20 and \
+            self.conf.get("run_in_bg", False):
+                self.dialog.close() #run in background
+                self.translator.parent=None
+            else:
+                self.translator.parent=self.dialog
+
+            self.translator.setLanguages(src,dest)
+            self.translator.setFields(rField,wField)
+            self.translator.setProperties(tag,ow,htm)
+            self.translator.process(self.notes)
             self.showStats()
+
 
     def showStats(self):
         tot=self.translator.stat["total"]
@@ -205,7 +208,7 @@ class RFB9000():
         ow=self.translator.stat["overwritten"]
         ne=self.translator.stat["netError"]
         e=self.translator.stat["nofield"]
-        showInfo("""Process completed!
+        txt="""Process completed!
 
 SUMMARY:\t\t\t( %d / %d )
 \tTotal Notes:\t\t%d
@@ -216,4 +219,8 @@ SUMMARY:\t\t\t( %d / %d )
 \tNo FieldName:\t\t%d
 \tNet Error:\t\t%d
 \tSkipped:\t\t%d
-"""%(w,tot,tot,w+s,w,ow,s,e,ne,e+s+ne))
+"""%(w,tot,tot,w+s,w,ow,s,e,ne,e+s+ne)
+
+        if self.translator.stat["interrupted"]:
+            txt+="\nTHE PROCESS WAS ABORTED!"
+        showInfo(txt)

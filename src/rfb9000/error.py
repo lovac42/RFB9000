@@ -27,3 +27,8 @@ class InvalidLanguageError(Exception):
     """Raised when there is no language support"""
     def __str__(self): 
         return "An invalid language code was given."
+
+class BlacklistedError(Exception):
+    """Raised when it fails to connect to translation service"""
+    def __str__(self): 
+        return "Banned from using the translation service."
