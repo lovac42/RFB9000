@@ -10,11 +10,12 @@ from anki.hooks import addHook
 
 from .config import Config
 from .rfb import RFB9000
-from .utils import getMenu
-from .const import *
+from .const import ADDON_NAME, DEFAULT_HOTKEY, TITLE
+
+from .lib.com.lovac42.anki.gui import toolbar
 
 
-conf=Config(ADDONNAME)
+conf=Config(ADDON_NAME)
 
 def setupMenu(bws):
     key=conf.get("hotkey", DEFAULT_HOTKEY) or QKeySequence()
@@ -23,7 +24,7 @@ def setupMenu(bws):
     act.setShortcut(QKeySequence(key))
     act.triggered.connect(lambda:RFB9000(bws,conf))
 
-    menu=getMenu(bws,'&Tools')
+    menu = toolbar.getMenu(bws,'&Tools')
     menu.addAction(act)
 
 addHook("browser.setupMenus", setupMenu)

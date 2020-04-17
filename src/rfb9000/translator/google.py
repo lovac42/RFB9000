@@ -10,7 +10,7 @@ from aqt.utils import showInfo
 from anki.lang import _
 from requests.exceptions import ConnectionError
 
-from ..const import ADDONNAME
+from ..const import ADDON_NAME
 from ..clean import Cleaner
 from ..error import NoNoteError, BlacklistedError
 
@@ -169,7 +169,7 @@ class GoogleTranslator:
             "nofield":0,
             "interrupted":False,
         }
-        mw.checkpoint(ADDONNAME)
+        mw.checkpoint(ADDON_NAME)
         self.processNotes(nids)
 
     def processNotes(self, nids):

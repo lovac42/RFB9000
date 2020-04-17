@@ -10,15 +10,12 @@ from aqt.qt import *
 from aqt.utils import getFile, showInfo
 from anki.lang import _
 
-from .const import *
 from .error import *
-from .utils import fieldNamesForNotes
+from .const import TITLE
 from .translator.google import GoogleTranslator
 
-if ANKI21:
-    from PyQt5 import QtCore, QtGui, QtWidgets
-else:
-    from PyQt4 import QtCore, QtGui as QtWidgets
+from .lib.com.lovac42.anki.backend.notes import fieldNamesForNotes
+from .lib.com.lovac42.anki.version import ANKI21
 
 
 class RFB9000:
@@ -60,12 +57,12 @@ class RFB9000:
         fields=fieldNamesForNotes(self.notes)
 
         r=0
-        gridLayout=QtWidgets.QGridLayout()
-        layout=QtWidgets.QVBoxLayout()
+        gridLayout=QGridLayout()
+        layout=QVBoxLayout()
         layout.addLayout(gridLayout)
 
-        fieldLayout=QtWidgets.QHBoxLayout()
-        fieldLayout.addWidget(QtWidgets.QLabel("Read From:"))
+        fieldLayout=QHBoxLayout()
+        fieldLayout.addWidget(QLabel("Read From:"))
 
         idx=self.conf.get("read_field",0)
         self.readField=QComboBox()
@@ -76,8 +73,8 @@ class RFB9000:
         fieldLayout.addWidget(self.readField)
         gridLayout.addLayout(fieldLayout,r,0, 1, 1)
 
-        fieldLayout=QtWidgets.QHBoxLayout()
-        fieldLayout.addWidget(QtWidgets.QLabel("Lang:"))
+        fieldLayout=QHBoxLayout()
+        fieldLayout.addWidget(QLabel("Lang:"))
         idx=self.conf.get("read_lang",0)
         self.readLang=QComboBox()
         self.readLang.setMinimumWidth(120)
@@ -90,8 +87,8 @@ class RFB9000:
 
 
         r+=1
-        fieldLayout=QtWidgets.QHBoxLayout()
-        fieldLayout.addWidget(QtWidgets.QLabel("Write To:    "))
+        fieldLayout=QHBoxLayout()
+        fieldLayout.addWidget(QLabel("Write To:    "))
 
         idx=self.conf.get("write_field",0)
         self.writeField=QComboBox()
@@ -102,8 +99,8 @@ class RFB9000:
         fieldLayout.addWidget(self.writeField)
         gridLayout.addLayout(fieldLayout,r,0, 1, 1)
 
-        fieldLayout=QtWidgets.QHBoxLayout()
-        fieldLayout.addWidget(QtWidgets.QLabel("Lang:"))
+        fieldLayout=QHBoxLayout()
+        fieldLayout.addWidget(QLabel("Lang:"))
         idx=self.conf.get("write_lang",0)
         self.writeLang=QComboBox()
         self.writeLang.setMinimumWidth(120)
@@ -115,7 +112,7 @@ class RFB9000:
 
 
         r+=1
-        self.cb_overWrite=QtWidgets.QCheckBox()
+        self.cb_overWrite=QCheckBox()
         self.cb_overWrite.setText(_('Overwrite field if not empty?'))
         self.cb_overWrite.setToolTip(_('Do you seriously need a tooltip for this?'))
         gridLayout.addWidget(self.cb_overWrite, r, 0, 1, 1)
@@ -123,7 +120,7 @@ class RFB9000:
 
         r+=1
         cbs=self.conf.get("strip_html",0)
-        self.cb_rm_html=QtWidgets.QCheckBox()
+        self.cb_rm_html=QCheckBox()
         self.cb_rm_html.setCheckState(cbs)
         self.cb_rm_html.clicked.connect(self.onChangedCB)
         self.cb_rm_html.setText(_('Strip HTML'))
@@ -132,7 +129,7 @@ class RFB9000:
 
 
         r+=1
-        lbl_help=QtWidgets.QLabel()
+        lbl_help=QLabel()
         lbl_help.setText(_("""<br><i>Exact matches only, 
                            beware of hidden html tags.</i><br>
                            <b>Make sure to backup first!</b>"""))
