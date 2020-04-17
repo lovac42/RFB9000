@@ -3,11 +3,17 @@
 <i>A tribute to Richard Francis Burton (RFB)</i>
 
 ## autotag
-Tag to add to each processed note.  
-Use an empty string for none.
+Tag to append to each processed note.  
+Use an empty string for none. or ""
+
+I suggest tagging these to make it easier to filter these notes latter on. This way, it would be possible to differentiate machine translations from book translations.
+
 
 ## run_in_bg
 Perform large operations in the background. Please don't mess around with the notes in the reviewer as they are being translated. As they are being written.
+
+You may review deckA while processing deckB. But don't review or edit deckB while it is being processed in the background.
+
 
 ## hotkey
 Set the hotkey or leave it empty.
