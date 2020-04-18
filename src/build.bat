@@ -2,7 +2,7 @@
 set ZIP=C:\PROGRA~1\7-Zip\7z.exe a -tzip -y -r
 set REPO=rfb9000
 set PACKID=rfb9000
-set VERSION=0.1.0
+set VERSION=0.2.0
 
 
 quick_manifest.exe "RFB9000: A Google Translator" "%PACKID%" >%REPO%\manifest.json
