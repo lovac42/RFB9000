@@ -171,6 +171,8 @@ class GoogleTranslator:
         }
         mw.checkpoint(ADDON_NAME)
         self.processNotes(nids)
+        mw.col.autosave()
+
 
     def processNotes(self, nids):
         end=len(nids)
@@ -184,6 +186,9 @@ class GoogleTranslator:
         for nid in nids:
             self.progress.setValue(cnt)
             cnt+=1
+
+            if cnt%20==0: #prevent crashes, caused by net lag?
+                mw.col.autosave()
 
             note=mw.col.getNote(nid)
             if self.read_field not in note or \
