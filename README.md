@@ -13,7 +13,7 @@ Requires an internet connection to work.
 <img src="https://github.com/lovac42/RFB9000/blob/master/examples/net.png?raw=true" />  
 
 ## Limits and Bans:
-There is a limit of 200 characters per 100 seconds or so. So if you don't play nice, you will get banned.
+There is a limit of 200 characters per 100 seconds or so. So if you don't play nice, you will get banned. Background processing is supported in the configs, but please try not to read and write to the same cards. You may review deckA while processing deckB.
 
 
 ## Screenshots:
