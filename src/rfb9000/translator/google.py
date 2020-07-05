@@ -55,6 +55,7 @@ LANG_MAPS = {
     'ha': 'Hausa',
     'haw': 'Hawaiian',
     'iw': 'Hebrew',
+    'he': 'Hebrew',
     'hi': 'Hindi',
     'hmn': 'Hmong',
     'hu': 'Hungarian',
@@ -87,6 +88,7 @@ LANG_MAPS = {
     'my': 'Myanmar (Burmese)',
     'ne': 'Nepali',
     'no': 'Norwegian',
+    'or': 'Odia',
     'ps': 'Pashto',
     'fa': 'Persian',
     'pl': 'Polish',
@@ -115,6 +117,7 @@ LANG_MAPS = {
     'tr': 'Turkish',
     'uk': 'Ukrainian',
     'ur': 'Urdu',
+    'ug': 'Uyghur',
     'uz': 'Uzbek',
     'vi': 'Vietnamese',
     'cy': 'Welsh',
@@ -122,8 +125,6 @@ LANG_MAPS = {
     'yi': 'Yiddish',
     'yo': 'Yoruba',
     'zu': 'Zulu',
-    'fil': 'Filipino',
-    'he': 'Hebrew'
 }
 
 

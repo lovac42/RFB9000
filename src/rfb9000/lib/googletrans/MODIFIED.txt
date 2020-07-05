@@ -1,0 +1,1 @@
+This library has been modified by lovac42 for RFB9000 and is not the same as the original. Dependency on httpx and httpcore has been removed.

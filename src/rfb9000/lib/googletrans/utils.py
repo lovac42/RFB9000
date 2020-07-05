@@ -1,12 +1,11 @@
 """A conversion module for googletrans"""
-from __future__ import print_function
-import re
 import json
+import re
 
 
-def build_params(query, src, dest, token):
+def build_params(query, src, dest, token, override):
     params = {
-        'client': 't',
+        'client': 'webapp',
         'sl': src,
         'tl': dest,
         'hl': dest,
@@ -19,6 +18,11 @@ def build_params(query, src, dest, token):
         'tk': token,
         'q': query,
     }
+
+    if override is not None:
+        for key, value in get_items(override):
+            params[key] = value
+
     return params
 
 
@@ -26,7 +30,7 @@ def legacy_format_json(original):
     # save state
     states = []
     text = original
-    
+
     # save position for double-quoted texts
     for i, pos in enumerate(re.finditer('"', text)):
         # pos.start() is a double-quote
@@ -53,6 +57,11 @@ def legacy_format_json(original):
 
     converted = json.loads(text)
     return converted
+
+
+def get_items(dict_object):
+    for key in dict_object:
+        yield key, dict_object[key]
 
 
 def format_json(original):
