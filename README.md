@@ -32,6 +32,6 @@ This addon was created as a guide, do not rely on it to be accurate in anyway. I
 
 
 ## API Used:
-googletrans 2.4.0 by SuHun Han (MIT License): https://pypi.org/project/googletrans/  
+google_trans_new 1.1.9 by LuShan (MIT License): https://github.com/lushan88a/google_trans_new  
 
 Made using Wordsworth's skeleton code: https://github.com/lovac42/Wordsworth

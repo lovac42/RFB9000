@@ -14,7 +14,8 @@ from ..const import ADDON_NAME
 from ..clean import Cleaner
 from ..error import NoNoteError, BlacklistedError
 
-from ..lib.googletrans import Translator
+# from ..lib.googletrans import Translator
+from ..lib.google_trans_new.google_trans_new import google_translator as Translator
 
 
 LANG_MAPS = {
@@ -252,10 +253,12 @@ class GoogleTranslator:
             return
 
         t = self.translator.translate(
-            str(o), src=self.src, dest=self.dest
+            # str(o), src=self.src, dest=self.dest
+            str(o), lang_src=self.src, lang_tgt=self.dest
         )
-        note[self.write_field]=t.text
+        # note[self.write_field]=t.text
         # note[self.write_field]=t.pronunciation #TODO: add option
+        note[self.write_field]=t
 
         if self.tag:
             note.addTag(self.tag)
